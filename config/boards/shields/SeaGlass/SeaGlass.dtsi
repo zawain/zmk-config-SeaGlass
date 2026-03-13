@@ -92,8 +92,8 @@
 
     encoder_1: encoder_1 {
         compatible = "alps,ec11";
-        a-gpios = <&gpio1 14 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        b-gpios = <&gpio1 15 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+        a-gpios = <&gpio1 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        b-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         steps = <24>;
         status = "disabled";
     };
@@ -101,8 +101,8 @@
 
     encoder_2:  encoder_2 {
         compatible = "alps,ec11";
-        a-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        b-gpios = <&gpio1 12 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+        a-gpios = <&gpio1 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        b-gpios = <&gpio1 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         steps = <24>;
         status = "disabled";
     };
@@ -111,12 +111,10 @@
         compatible = "zmk,keymap-sensors";
         sensors = <&encoder_1 &encoder_2>;
         encoder_1 {
-            // 縦スクロールの感度
-            triggers-per-rotation = <36>;
+            triggers-per-rotation = <24>;
         };
         encoder_2 {
-            // 横スクロールの感度
-            triggers-per-rotation = <36>;
+            triggers-per-rotation = <24>;
         };
 
     };
@@ -127,6 +125,7 @@
         gpios = <&gpio0 17 GPIO_ACTIVE_LOW>;
         status = "okay";
     };
+
 
     kscan_matrix: kscan_matrix {
         compatible = "zmk,kscan-gpio-matrix";
