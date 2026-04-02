@@ -260,7 +260,7 @@ Comming soon...\
 <a id="3-2-左手側組み立て手順"></a>
 ### 3-2. 左手側組み立て手順
 
-1. 画像のようにロータリーエンコーダに軸とホイールを装着してください。青と白のホイールが付属しているので、お好みの色を使用してください。トッププレートを装着した後はロータリーエンコーダのつけ外しができなくなるので組み立ての順番に注意してください。
+1. 画像のようにロータリーエンコーダに軸とホイールを装着してください。トッププレートを装着した後はロータリーエンコーダのつけ外しができなくなるので組み立ての順番に注意してください。
 ![lt1](https://raw.githubusercontent.com/hama-be/zmk-config-SeaGlass/refs/heads/main/docs/img/lt1.png)
 2. ホイールの下に滑り込ませるようにトッププレートを装着してください。
 ![lt2](https://raw.githubusercontent.com/hama-be/zmk-config-SeaGlass/refs/heads/main/docs/img/lt2.png)
