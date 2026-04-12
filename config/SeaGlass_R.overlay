@@ -14,8 +14,8 @@
         device = <&trackball>; 
 
         /* 🔽 ここが修正ポイント！入れ子（中カッコの中の塊）にします */
-        scroll_layer_8 {
-            layers = <8>; 
+        scroll_layer_7 {
+            layers = <7>; 
             input-processors = <&custom_scroll_mapper>;
         };
     };
