@@ -188,17 +188,25 @@
     };
 };
 / {
-    /* スクロールレイヤーの設定 */
+    /* 1. 追加：移動をスクロールに変換するルールの定義 */
+    zip_xy_to_scroll_mapper: zip_xy_to_scroll_mapper {
+        compatible = "zmk,input-processor-code-mapper";
+        #input-processor-cells = <0>;
+        type = <2>; /* INPUT_EV_REL */
+        map = <0 6>, /* X軸移動 を 左右スクロール に変換 */
+              <1 8>; /* Y軸移動 を 上下スクロール に変換 */
+    };
+
+    /* 2. スクロールレイヤーの設定 */
     scroll_listener {
         compatible = "zmk,input-listener";
         
-        /* SeaGlassのデバイス名。通常は &trackball です */
-        device = <&trackball>; 
+        /* 左右分割エラー回避のため device = <...>; は書きません */
 
-        /* スクロールとして動作させたいレイヤーの「番号」を指定します */
-        /* 例：レイヤーが 0, 1, 2, 3 とある場合、新しい4番目を使うなら <4> */
+        /* スクロールとして動作させたいレイヤーの番号 */
         layers = <8>; 
 
         input-processors = <&zip_xy_to_scroll_mapper>;
     };
 };
+
