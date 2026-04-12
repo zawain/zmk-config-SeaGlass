@@ -1,0 +1,23 @@
+/ {
+    /* 移動をスクロールに変換するルールの定義 */
+    zip_xy_to_scroll_mapper: zip_xy_to_scroll_mapper {
+        compatible = "zmk,input-processor-code-mapper";
+        #input-processor-cells = <0>;
+        type = <2>; /* INPUT_EV_REL */
+        map = <0 6>, /* X軸移動 を 左右スクロール に変換 */
+              <1 8>; /* Y軸移動 を 上下スクロール に変換 */
+    };
+
+    /* スクロールレイヤーの設定（右手側でのみ有効になる） */
+    scroll_listener {
+        compatible = "zmk,input-listener";
+        
+        /* ここに堂々とトラックボールを指定できます！ */
+        device = <&trackball>; 
+
+        /* スクロールとして動作させたいレイヤーの番号 */
+        layers = <8>; 
+
+        input-processors = <&zip_xy_to_scroll_mapper>;
+    };
+};
