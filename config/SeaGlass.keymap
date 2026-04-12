@@ -193,7 +193,7 @@
         compatible = "zmk,input-listener";
         
         /* SeaGlassのデバイス名。通常は &trackball です */
-        device = <SeaGlass>; 
+        device = <&trackball>; 
 
         /* スクロールとして動作させたいレイヤーの「番号」を指定します */
         /* 例：レイヤーが 0, 1, 2, 3 とある場合、新しい4番目を使うなら <4> */
