@@ -187,3 +187,18 @@
         };
     };
 };
+/ {
+    /* スクロールレイヤーの設定 */
+    scroll_listener {
+        compatible = "zmk,input-listener";
+        
+        /* SeaGlassのデバイス名。通常は &trackball です */
+        device = <SeaGlass>; 
+
+        /* スクロールとして動作させたいレイヤーの「番号」を指定します */
+        /* 例：レイヤーが 0, 1, 2, 3 とある場合、新しい4番目を使うなら <4> */
+        layers = <8>; 
+
+        input-processors = <&zip_xy_to_scroll_mapper>;
+    };
+};
