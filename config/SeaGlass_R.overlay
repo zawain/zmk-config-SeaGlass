@@ -1,18 +1,20 @@
 / {
-    /* 1. 移動をスクロールに変換するマッパー */
+    /* 1. 移動を高解像度スクロール（Hi-Res Scroll）に変換 */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
-        type = <2>; 
-        map = <0 6>, <1 8>;
+        type = <2>; /* INPUT_EV_REL */
+        /* 12 = 左右の高解像度スクロール, 11 = 上下の高解像度スクロール */
+        map = <0 12>, <1 11>; 
     };
 
-    /* 2. 感度（速度）を調整するスケーラー */
+    /* 2. 感度（速度）調整スケーラー（Hi-Res用） */
     custom_scroll_scaler: custom_scroll_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <6 8>; /* スクロール軸（左右・上下）を対象にする */
+        /* 上下左右のHi-Res信号（12と11）を対象にする */
+        codes = <12 11>; 
     };
 
     /* 3. スクロール動作の設定 */
@@ -20,12 +22,10 @@
         compatible = "zmk,input-listener";
         device = <&trackball>; 
 
-        /* レイヤー7に設定 */
         scroll_layer_7 {
             layers = <7>; 
-            
-            /* マッパーで変換した後、スケーラーで1/8の速度に落とす設定 */
-            input-processors = <&custom_scroll_mapper>, <&custom_scroll_scaler 1 8>;
+            /* Hi-Resは動きが非常に細かいため、まずは「2倍速（2 1）」で試します */
+            input-processors = <&custom_scroll_mapper>, <&custom_scroll_scaler 2 1>;
         };
     };
 };
