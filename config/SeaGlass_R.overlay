@@ -24,8 +24,8 @@
         scroll_layer_7 {
             layers = <7>; 
             
-            /* マッパーで変換した後、スケーラーで1/4の速度に落とす設定 */
-            input-processors = <&custom_scroll_mapper>, <&custom_scroll_scaler 1 4>;
+            /* マッパーで変換した後、スケーラーで1/8の速度に落とす設定 */
+            input-processors = <&custom_scroll_mapper>, <&custom_scroll_scaler 1 8>;
         };
     };
 };
