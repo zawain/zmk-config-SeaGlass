@@ -1,22 +1,31 @@
 / {
-    /* 1. 移動をスクロールに変換するマッパーの定義 */
+    /* 1. 移動をスクロールに変換するマッパー */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
-        type = <2>; /* INPUT_EV_REL */
-        map = <0 6>, /* X軸 -> 左右スクロール */
-              <1 8>; /* Y軸 -> 上下スクロール */
+        type = <2>; 
+        map = <0 6>, <1 8>;
     };
 
-    /* 2. スクロール動作の設定 */
+    /* 2. 感度（速度）を調整するスケーラー */
+    custom_scroll_scaler: custom_scroll_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <6 8>; /* スクロール軸（左右・上下）を対象にする */
+    };
+
+    /* 3. スクロール動作の設定 */
     scroll_listener {
         compatible = "zmk,input-listener";
         device = <&trackball>; 
 
-        /* 🔽 ここが修正ポイント！入れ子（中カッコの中の塊）にします */
+        /* レイヤー7に設定 */
         scroll_layer_7 {
             layers = <7>; 
-            input-processors = <&custom_scroll_mapper>;
+            
+            /* マッパーで変換した後、スケーラーで1/4の速度に落とす設定 */
+            input-processors = <&custom_scroll_mapper>, <&custom_scroll_scaler 1 4>;
         };
     };
 };
