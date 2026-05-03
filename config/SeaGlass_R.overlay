@@ -1,26 +1,26 @@
 / {
-    /* 1. 移動をスクロールに変換するマッパー */
+    /* 1. 【縦移動（Y軸）専用】 生データの感度を下げる */
+    custom_y_scaler: custom_y_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <1>; /* 1 = Y軸の生データ */
+    };
+
+    /* 2. 【横移動（X軸）専用】 生データの感度をさらに重くする */
+    custom_x_scaler: custom_x_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <0>; /* 0 = X軸の生データ */
+    };
+
+    /* 3. 最後にスクロール信号へ変換するマッパー */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
         type = <2>;
         map = <0 6>, <1 8>;
-    };
-
-    /* 2. 【縦スクロール（Y軸）専用】のスケーラー */
-    custom_y_scaler: custom_y_scaler {
-        compatible = "zmk,input-processor-scaler";
-        #input-processor-cells = <2>;
-        type = <2>;
-        codes = <8>; /* 8 = 上下スクロールのみを対象にする */
-    };
-
-    /* 3. 【横スクロール（X軸）専用】のスケーラー */
-    custom_x_scaler: custom_x_scaler {
-        compatible = "zmk,input-processor-scaler";
-        #input-processor-cells = <2>;
-        type = <2>;
-        codes = <6>; /* 6 = 左右スクロールのみを対象にする */
     };
 
     /* 4. スクロール動作の設定 */
@@ -31,11 +31,11 @@
         scroll_layer_7 {
             layers = <7>; 
             
-            /* 🔽 縦と横を別々に調整します */
-            /* 縦は 1/3 (1 3)、横は誤爆を防ぐためかなり重めの 1/6 (1 6) に設定する例です */
-            input-processors = <&custom_scroll_mapper>, 
-                               <&custom_y_scaler 1 10>, 
-                               <&custom_x_scaler 1 20>;
+            /* 🔽 順番が命です！ 生データを縦・横それぞれ間引いてから、スクロールに変換します */
+            input-processors = 
+                <&custom_y_scaler 1 3>,  /* 縦の感度（好みに応じて 1 2 や 1 4 に調整） */
+                <&custom_x_scaler 1 8>,  /* 横の感度（誤爆を防ぐため、かなり重めに設定） */
+                <&custom_scroll_mapper>;
         };
     };
 };
