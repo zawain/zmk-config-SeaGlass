@@ -1,5 +1,5 @@
 / {
-    /* 1. マッパーを確実に動く標準スクロール（6と8）に戻します */
+    /* 1. 移動をスクロールに変換するマッパー */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
@@ -7,15 +7,23 @@
         map = <0 6>, <1 8>;
     };
 
-    /* 2. スケーラーの対象も6と8に戻します */
-    custom_scroll_scaler: custom_scroll_scaler {
+    /* 2. 【縦スクロール（Y軸）専用】のスケーラー */
+    custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <6 8>;
+        codes = <8>; /* 8 = 上下スクロールのみを対象にする */
     };
 
-    /* 3. スクロール動作の設定 */
+    /* 3. 【横スクロール（X軸）専用】のスケーラー */
+    custom_x_scaler: custom_x_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <6>; /* 6 = 左右スクロールのみを対象にする */
+    };
+
+    /* 4. スクロール動作の設定 */
     scroll_listener {
         compatible = "zmk,input-listener";
         device = <&trackball>; 
@@ -23,8 +31,11 @@
         scroll_layer_7 {
             layers = <7>; 
             
-            /* 1/4のもたつきを減らすため、まずは「1/2 (1 2)」または「1/3 (1 3)」に設定します */
-            input-processors = <&custom_scroll_mapper>, <&custom_scroll_scaler 1 2>;
+            /* 🔽 縦と横を別々に調整します */
+            /* 縦は 1/3 (1 3)、横は誤爆を防ぐためかなり重めの 1/6 (1 6) に設定する例です */
+            input-processors = <&custom_scroll_mapper>, 
+                               <&custom_y_scaler 1 3>, 
+                               <&custom_x_scaler 1 6>;
         };
     };
 };
