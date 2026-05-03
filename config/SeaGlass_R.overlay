@@ -34,8 +34,8 @@
             /* 🔽 縦と横を別々に調整します */
             /* 縦は 1/3 (1 3)、横は誤爆を防ぐためかなり重めの 1/6 (1 6) に設定する例です */
             input-processors = <&custom_scroll_mapper>, 
-                               <&custom_y_scaler 1 3>, 
-                               <&custom_x_scaler 1 6>;
+                               <&custom_y_scaler 1 5>, 
+                               <&custom_x_scaler 1 10>;
         };
     };
 };
