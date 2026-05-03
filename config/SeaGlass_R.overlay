@@ -1,13 +1,5 @@
 / {
-    /* 1. 【縦移動（Y軸）専用】 生データの感度を下げる */
-    custom_y_scaler: custom_y_scaler {
-        compatible = "zmk,input-processor-scaler";
-        #input-processor-cells = <2>;
-        type = <2>;
-        codes = <1>; /* 1 = Y軸の生データ */
-    };
-
-    /* 2. 【横移動（X軸）専用】 生データの感度をさらに重くする */
+    /* 1. 【横スクロール（X軸）専用】生データの感度を極端に落とす（ブレ防止） */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -15,7 +7,15 @@
         codes = <0>; /* 0 = X軸の生データ */
     };
 
-    /* 3. 最後にスクロール信号へ変換するマッパー */
+    /* 2. 【縦スクロール（Y軸）専用】生データの感度を心地よい速度に落とす */
+    custom_y_scaler: custom_y_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <1>; /* 1 = Y軸の生データ */
+    };
+
+    /* 3. 間引いた生データをスクロール信号に変換するマッパー */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
@@ -23,7 +23,7 @@
         map = <0 6>, <1 8>;
     };
 
-    /* 4. スクロール動作の設定 */
+    /* 4. スクロール動作の設定（レイヤー7） */
     scroll_listener {
         compatible = "zmk,input-listener";
         device = <&trackball>; 
@@ -31,11 +31,11 @@
         scroll_layer_7 {
             layers = <7>; 
             
-            /* 🔽 順番が命です！ 生データを縦・横それぞれ間引いてから、スクロールに変換します */
+            /* 🔽 小人キーのロジックを完全再現！ */
             input-processors = 
-                <&custom_y_scaler 1 8>,  /* 縦の感度（好みに応じて 1 2 や 1 4 に調整） */
-                <&custom_x_scaler 1 16>,  /* 横の感度（誤爆を防ぐため、かなり重めに設定） */
-                <&custom_scroll_mapper>;
+                <&custom_x_scaler 1 150>,  /* 横は 1/150 で斜めノイズを無視 */
+                <&custom_y_scaler 1 45>,   /* 縦は 1/45 で心地よい速度に */
+                <&custom_scroll_mapper>;   /* 最後にスクロールに変換 */
         };
     };
 };
