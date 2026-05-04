@@ -1,4 +1,4 @@
-/* 🔽 1. ボールの向き（90度回転）と解像度を修正 */
+/* 🔽 1. ハードウェアの根元は「標準のXとY」に戻してパニックを鎮める */
 &{/soc/spi@40003000} {
     my_trackball: trackball@0 {
         /delete-property/ snipe-layers;
@@ -6,36 +6,38 @@
         /delete-property/ automouse-layer;
 
         evt-type = <2>;
-        
-        /* 物理的なXとYの入力を入れ替えることで、90度回転を再現します */
-        x-input-code = <1>;  /* 物理XをOSのY軸に送る */
-        y-input-code = <0>;  /* 物理YをOSのX軸に送る */
-        
-        /* 解像度(CPI)を明示的に高めに設定し、なめらかさの土台を作ります */
+        x-input-code = <0>;  /* ← 標準のXに戻しました */
+        y-input-code = <1>;  /* ← 標準のYに戻しました */
         cpi = <800>; 
     };
 };
 
 / {
     /* ===================================
-       2. カーソル用の反転＆速度スケーラー
+       2. 90度回転させるための専用変換器
        =================================== */
+    xy_swap_mapper: xy_swap_mapper {
+        compatible = "zmk,input-processor-code-mapper";
+        #input-processor-cells = <0>;
+        type = <2>;
+        map = <0 1>, <1 0>; /* ここで安全にXとYを入れ替えます */
+    };
+
+    /* カーソル用スケーラー */
     pointer_x_scaler: pointer_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <0>; /* OSのX軸（左右） */
+        codes = <0>;
     };
     pointer_y_scaler: pointer_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <1>; /* OSのY軸（上下） */
+        codes = <1>;
     };
 
-    /* ===================================
-       3. スクロール用のスケーラー
-       =================================== */
+    /* スクロール用スケーラー */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -56,36 +58,28 @@
     };
 
     /* ===================================
-       4. レイヤーへの割り当て
+       3. レイヤーへの割り当て
        =================================== */
     trackball_listener {
         compatible = "zmk,input-listener";
         device = <&my_trackball>;
 
-        /* ▼ 普段のレイヤー（カーソル移動） */
+        /* ▼ 普段のカーソル移動 */
         pointer_layers {
             layers = <0 1 2 3 4 5 6>;
-            /* 
-               【あべこべの最終調整】
-               もし「上下」の動きが逆なら： <&pointer_y_scaler -1 1> にする
-               もし「左右」の動きが逆なら： <&pointer_x_scaler -1 1> にする
-            */
             input-processors = 
-                <&pointer_x_scaler 1 1>,
-                <&pointer_y_scaler 1 1>;
+                <&xy_swap_mapper>,      /* ① まず安全にXとYを入れ替える（90度回転） */
+                <&pointer_x_scaler 1 1>, /* ② 左右の速度調整（逆なら -1 1 にする） */
+                <&pointer_y_scaler 1 1>; /* ③ 上下の速度調整（逆なら -1 1 にする） */
         };
 
-        /* ▼ スクロールレイヤー（Layer 7） */
+        /* ▼ スクロールレイヤー */
         scroll_layer_7 {
             layers = <7>; 
-            /* 
-               【なめらかさの最終調整】
-               45は重すぎるので、10などの小さい数字にして高頻度でなめらかに動かします。
-               もしスクロールの「上下」が逆なら： <&custom_y_scaler -1 10> にします。
-            */
             input-processors = 
-                <&custom_x_scaler 1 50>,   /* 横はブレ防止で重め */
-                <&custom_y_scaler 1 10>,   /* 縦をなめらかに！ */
+                <&xy_swap_mapper>,      /* ① スクロール時も安全に入れ替える */
+                <&custom_x_scaler 1 50>, /* ② 横の誤爆防止 */
+                <&custom_y_scaler 1 10>, /* ③ 縦のなめらかスクロール（逆なら -1 10 にする） */
                 <&custom_scroll_mapper>;
         };
     };
