@@ -1,7 +1,14 @@
-/* 親玉（spi0）の中にある、子供（trackball@0）に直接指示を出します */
 &spi0 {
     trackball@0 {
         status = "okay";
+
+        /* ▼ 新しいエンジンのために以前書き足した「ゴースト」を強制削除！ */
+        /delete-property/ evt-type;
+        /delete-property/ x-input-code;
+        /delete-property/ y-input-code;
+
+        /* ▼ そしてinorichi版の純正スクロール機能（Layer 5と7）を発動！ */
         scroll-layers = <5 7>; 
     };
 };
+
