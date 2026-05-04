@@ -1,7 +1,6 @@
 /* 🔽 1. トラックボールの住所を直接指定して、確実に呼び出す！ */
 &{/soc/spi@40003000} {
     my_trackball: trackball@0 {
-        /* 念のため削除コマンドも残しておきます */
         /delete-property/ snipe-layers;
         /delete-property/ scroll-layers;
         /delete-property/ automouse-layer;
@@ -57,7 +56,6 @@
     /* 5. 動作の割り当て（リスナー設定） */
     trackball_listener {
         compatible = "zmk,input-listener";
-        /* 🔽 ここで先ほど自分でつけた名札「my_trackball」を使います */
         device = <&my_trackball>; 
 
         /* ▼ 通常時（Layer 0-6）：カーソル移動 */
@@ -65,7 +63,7 @@
             layers = <0 1 2 3 4 5 6>;
             input-processors = 
                 <&xy_swap>,
-                <&pointer_y_scaler -1 1>; /* カーソルの上下反転 */
+                <&pointer_y_scaler (-1) 1>; /* ◀︎ 【修正】マイナスをカッコで囲みました！ */
         };
 
         /* ▼ スクロール時（Layer 7） */
