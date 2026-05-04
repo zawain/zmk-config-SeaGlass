@@ -1,18 +1,5 @@
 / {
-    /* ==============================
-       通常カーソル移動用のスケーラー（Snipe）
-       ============================== */
-    /* CPIを2400に爆上げしたため、普段のカーソルが速すぎないようにブレーキをかけます */
-    pointer_scaler: pointer_scaler {
-        compatible = "zmk,input-processor-scaler";
-        #input-processor-cells = <2>;
-        type = <2>;
-        codes = <0 1>; /* X軸とY軸の両方 */
-    };
-
-    /* ==============================
-       スクロール用のスケーラーとマッパー
-       ============================== */
+    /* 横スクロール（ブレ防止用） */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -20,6 +7,7 @@
         codes = <0>;
     };
 
+    /* 縦スクロール（自然な速度用） */
     custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -27,6 +15,7 @@
         codes = <1>;
     };
 
+    /* スクロール信号への変換 */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
@@ -34,29 +23,21 @@
         map = <0 6>, <1 8>;
     };
 
-    /* ==============================
-       レイヤーごとの動作割り当て
-       ============================== */
+    /* レイヤー7でのスクロール設定 */
     trackball_listener {
         compatible = "zmk,input-listener";
+        
+        /* ※もしエラーが出る場合は、ここを <&pmw3610> に書き換えてみてください */
         device = <&trackball>; 
 
-        /* ▼ 普段のレイヤー（カーソル移動） */
-        pointer_layers {
-            layers = <0 1 2 3>; 
-            
-            /* 通常カーソル用ブレーキ（1/3〜1/5あたりで好みの速度に調整） */
-            input-processors = <&pointer_scaler 1 4>;
-        };
-
-        /* ▼ スクロールレイヤー（Layer 7） */
         scroll_layer_7 {
             layers = <7>; 
             
-            /* ラグは消えているので、分母を大きくして心地よい速度を作れます */
+            /* SeaGlassは最初からもたつきゼロなので、軽い数字で完璧に動きます！ */
+            /* 縦は 1/2（または 1/1）、横は 1/5 くらいがオススメです */
             input-processors = 
-                <&custom_x_scaler 1 150>,  /* 横はブレ防止で激重に */
-                <&custom_y_scaler 1 45>,   /* 縦は小人キーと同じ黄金比に */
+                <&custom_x_scaler 1 5>,
+                <&custom_y_scaler 1 2>,
                 <&custom_scroll_mapper>;
         };
     };
