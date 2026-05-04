@@ -1,72 +1,8 @@
-/* 1. トラックボールの物理定義 */
-&{/soc/spi@40003000} {
-    my_trackball: trackball@0 {
-        /delete-property/ snipe-layers;
-        /delete-property/ scroll-layers;
-        /delete-property/ automouse-layer;
-
-        evt-type = <2>;
-        x-input-code = <0>;
-        y-input-code = <1>;
-        cpi = <800>; 
-    };
-};
-
-/ {
-    /* ===================================
-       2. 共通の変換器（完璧なカーソルと同じもの）
-       =================================== */
+/* 🔽 私が書いた複雑なプログラムはすべて消し去り、これだけにします！ */
+&{/soc/spi@40003000/trackball@0} {
+    status = "okay";
     
-    /* 90度回転 */
-    xy_swap: xy_swap {
-        compatible = "zmk,input-processor-code-mapper";
-        #input-processor-cells = <0>;
-        type = <2>;
-        map = <0 1>, <1 0>; 
-    };
-
-    /* 反転用スケーラー */
-    scaler_x: scaler_x { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <0>; };
-    scaler_y: scaler_y { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <1>; };
-
-    /* 🔽 今回のキモ：カーソル信号(0,1)をスクロール信号(6,8)に「すり替える」変換器 */
-    xy_to_scroll: xy_to_scroll {
-        compatible = "zmk,input-processor-code-mapper";
-        #input-processor-cells = <0>;
-        type = <2>;
-        map = <0 6>, <1 8>; /* X(0)をパン(6)へ、Y(1)をスクロール(8)へ */
-    };
-
-    /* スクロール速度調整用（信号が変わった後の6と8にブレーキをかける） */
-    scroll_v_scaler: scroll_v_scaler { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <8>; };
-    scroll_h_scaler: scroll_h_scaler { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <6>; };
-
-    /* ===================================
-       3. 動作の割り当て
-       =================================== */
-    trackball_listener {
-        compatible = "zmk,input-listener";
-        device = <&my_trackball>; 
-
-        /* ▼ 通常時：完璧になった今の設定を維持 */
-        default_layers {
-            layers = <0 1 2 3 4 5 6>;
-            input-processors = 
-                <&xy_swap>,
-                <&scaler_x (-1) 1>,
-                <&scaler_y (-1) 1>;
-        };
-
-        /* ▼ スクロール時：上の「完璧な設定」をそのまま通した後に、スクロールに変換する */
-        scroll_layer {
-            layers = <7>;
-            input-processors = 
-                <&xy_swap>,         /* ① 完璧なカーソルと同じ回転をかける */
-                <&scaler_x (-1) 1>,  /* ② 完璧なカーソルと同じ反転をかける */
-                <&scaler_y (-1) 1>,  /* ③ 完璧なカーソルと同じ反転をかける */
-                <&xy_to_scroll>,    /* ④ ここで初めて「スクロール信号」にすり替える */
-                <&scroll_v_scaler 1 4>, /* ⑤ 縦スクロールの速さ調整（まずは軽めの1/4から） */
-                <&scroll_h_scaler 1 20>;/* ⑥ 横スクロールの速さ調整 */
-        };
-    };
+    /* inorichi版の特権、純正スクロール機能です！ */
+    /* 念のため、Layer 5(SHORTCUT) と 7(SCROLL) の両方で発動するように構えます！ */
+    scroll-layers = <5 7>; 
 };
