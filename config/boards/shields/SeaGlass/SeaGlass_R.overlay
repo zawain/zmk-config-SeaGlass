@@ -82,7 +82,9 @@
         reg = <0>;
         spi-max-frequency = <4000000>;
         irq-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-        snipe-layers = <1>;
-        scroll-layers = <8>;
+        /* ▼ 消した代わりに、この3行を追加します ▼ */
+        evt-type = <2>;
+        x-input-code = <0>;
+        y-input-code = <1>;
     };
 };
