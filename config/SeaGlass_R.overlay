@@ -1,4 +1,4 @@
-/* 🔽 1. トラックボールの住所指定と初期化 */
+/* 1. トラックボールの物理定義 */
 &{/soc/spi@40003000} {
     my_trackball: trackball@0 {
         /delete-property/ snipe-layers;
@@ -14,57 +14,59 @@
 
 / {
     /* ===================================
-       2. 変換器（マッパー）の定義
-       ※チェーンさせず、それぞれ独立させます
+       2. 共通の変換器（完璧なカーソルと同じもの）
        =================================== */
-       
-    /* 【カーソル用】物理軸を90度回転（物理XをOSのYへ、物理YをOSのXへ） */
-    pointer_mapper: pointer_mapper {
+    
+    /* 90度回転 */
+    xy_swap: xy_swap {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
         type = <2>;
         map = <0 1>, <1 0>; 
     };
 
-    /* 【スクロール用】物理軸を直接スクロール信号へ（物理Xを縦スクロールへ、物理Yを横パンへ） */
-    scroll_mapper: scroll_mapper {
+    /* 反転用スケーラー */
+    scaler_x: scaler_x { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <0>; };
+    scaler_y: scaler_y { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <1>; };
+
+    /* 🔽 今回のキモ：カーソル信号(0,1)をスクロール信号(6,8)に「すり替える」変換器 */
+    xy_to_scroll: xy_to_scroll {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
         type = <2>;
-        map = <0 8>, <1 6>; 
+        map = <0 6>, <1 8>; /* X(0)をパン(6)へ、Y(1)をスクロール(8)へ */
     };
 
-    /* ===================================
-       3. 反転・速度調整（スケーラー）の定義
-       =================================== */
-    scaler_x: scaler_x { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <0>; };
-    scaler_y: scaler_y { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <1>; };
-    scaler_scroll: scaler_scroll { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <8>; };
-    scaler_pan: scaler_pan { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <6>; };
+    /* スクロール速度調整用（信号が変わった後の6と8にブレーキをかける） */
+    scroll_v_scaler: scroll_v_scaler { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <8>; };
+    scroll_h_scaler: scroll_h_scaler { compatible = "zmk,input-processor-scaler"; #input-processor-cells = <2>; type = <2>; codes = <6>; };
 
     /* ===================================
-       4. 動作の割り当て
+       3. 動作の割り当て
        =================================== */
     trackball_listener {
         compatible = "zmk,input-listener";
         device = <&my_trackball>; 
 
-        /* ▼ 通常時（Layer 0-6）：カーソル移動 */
+        /* ▼ 通常時：完璧になった今の設定を維持 */
         default_layers {
             layers = <0 1 2 3 4 5 6>;
             input-processors = 
-                <&pointer_mapper>,       /* 90度回転 */
-                <&scaler_x (-1) 1>,      /* ◀︎ 左右を反転！ */
-                <&scaler_y (-1) 1>;      /* ◀︎ 上下を反転！ */
+                <&xy_swap>,
+                <&scaler_x (-1) 1>,
+                <&scaler_y (-1) 1>;
         };
 
-        /* ▼ スクロール時（Layer 7） */
+        /* ▼ スクロール時：上の「完璧な設定」をそのまま通した後に、スクロールに変換する */
         scroll_layer {
             layers = <7>;
             input-processors = 
-                <&scroll_mapper>,        /* スクロール信号へ直接変換 */
-                <&scaler_scroll (-1) 12>,/* 縦スクロール反転 ＆ なめらか速度 */
-                <&scaler_pan (-1) 60>;   /* 横スクロール反転 ＆ 誤爆防止の重め */
+                <&xy_swap>,         /* ① 完璧なカーソルと同じ回転をかける */
+                <&scaler_x (-1) 1>,  /* ② 完璧なカーソルと同じ反転をかける */
+                <&scaler_y (-1) 1>,  /* ③ 完璧なカーソルと同じ反転をかける */
+                <&xy_to_scroll>,    /* ④ ここで初めて「スクロール信号」にすり替える */
+                <&scroll_v_scaler 1 4>, /* ⑤ 縦スクロールの速さ調整（まずは軽めの1/4から） */
+                <&scroll_h_scaler 1 20>;/* ⑥ 横スクロールの速さ調整 */
         };
     };
 };
