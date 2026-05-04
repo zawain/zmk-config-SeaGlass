@@ -7,12 +7,26 @@
         map = <0 6>, <1 8>;
     };
 
-    /* 2. 感度（速度）を調整するスケーラー */
-    custom_scroll_scaler: custom_scroll_scaler {
+    /* =======================================
+       2. 感度（距離）を調整するスケーラーを2つに分割！
+       ======================================= */
+       
+    /* ▼ 縦スクロール（上下）用の調整器 */
+    scroll_v_scaler: scroll_v_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <6 8>; /* スクロール軸（左右・上下）を対象にする */
+        codes = <8>; /* 8 = 縦スクロール */
+        track-remainders;
+    };
+
+    /* ▼ 横スクロール（左右）用の調整器 */
+    scroll_h_scaler: scroll_h_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <6>; /* 6 = 横スクロール(Pan) */
+        track-remainders;
     };
 
     /* 3. スクロール動作の設定 */
@@ -24,8 +38,14 @@
         scroll_layer_7 {
             layers = <7>; 
             
-            /* マッパーで変換した後、スケーラーで1/4の速度に落とす設定 */
-            input-processors = <&custom_scroll_mapper>, <&custom_scroll_scaler 1 4>;
+            /* 
+               マッパーで変換した後、縦と横それぞれのスケーラーを通します。
+               以下の数字をいじって、お好みの距離に調整してください！
+            */
+            input-processors = 
+                <&custom_scroll_mapper>, 
+                <&scroll_v_scaler 1 4>,  /* ◀︎ 縦の感度（例: 1/4倍） */
+                <&scroll_h_scaler 1 10>; /* ◀︎ 横の感度（例: 誤爆防止で1/10倍と鈍めに設定） */
         };
     };
 };
