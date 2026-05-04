@@ -1,14 +1,16 @@
-/* 1. トラックボールの物理定義 */
-&trackball {
-    status = "okay";
-    /delete-property/ snipe-layers;
-    /delete-property/ scroll-layers;
-    /delete-property/ automouse-layer;
+/* 🔽 1. トラックボールの住所を直接指定して、確実に呼び出す！ */
+&{/soc/spi@40003000} {
+    my_trackball: trackball@0 {
+        /* 念のため削除コマンドも残しておきます */
+        /delete-property/ snipe-layers;
+        /delete-property/ scroll-layers;
+        /delete-property/ automouse-layer;
 
-    evt-type = <2>;
-    x-input-code = <0>;
-    y-input-code = <1>;
-    cpi = <800>; 
+        evt-type = <2>;
+        x-input-code = <0>;
+        y-input-code = <1>;
+        cpi = <800>; 
+    };
 };
 
 / {
@@ -30,12 +32,12 @@
 
     /* 4. 【速度・反転調整プロセッサ】 */
     
-    /* ▼ 今回追加：カーソルのY軸（上下）を反転させるプロセッサ */
+    /* カーソルのY軸（上下）を反転させるプロセッサ */
     pointer_y_scaler: pointer_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <1>; /* OSのY軸（上下）を指定 */
+        codes = <1>; 
     };
 
     /* スクロールの縦横別の感度調整 */
@@ -55,14 +57,15 @@
     /* 5. 動作の割り当て（リスナー設定） */
     trackball_listener {
         compatible = "zmk,input-listener";
-        device = <&trackball>;
+        /* 🔽 ここで先ほど自分でつけた名札「my_trackball」を使います */
+        device = <&my_trackball>; 
 
         /* ▼ 通常時（Layer 0-6）：カーソル移動 */
         default_layers {
             layers = <0 1 2 3 4 5 6>;
             input-processors = 
                 <&xy_swap>,
-                <&pointer_y_scaler -1 1>; /* ◀︎ ここで上下を反転させます！ */
+                <&pointer_y_scaler -1 1>; /* カーソルの上下反転 */
         };
 
         /* ▼ スクロール時（Layer 7） */
@@ -76,4 +79,3 @@
         };
     };
 };
-
