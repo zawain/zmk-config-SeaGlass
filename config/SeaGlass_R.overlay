@@ -1,5 +1,4 @@
 / {
-    /* 横スクロール（誤爆防止） */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -7,7 +6,6 @@
         codes = <0>;
     };
 
-    /* 縦スクロール */
     custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -29,14 +27,10 @@
         scroll_layer_7 {
             layers = <7>; 
             
-            /* 
-               報告頻度が上がったので、ラグなしでブレーキがかかります。
-               縦は 1/10 または 1/15 くらいから試すのがオススメです。
-               横は 1/20 くらいにしておきます。
-            */
+            /* ▼ 小人キーと完全に同じ最強セッティング！ */
             input-processors = 
-                <&custom_x_scaler 1 20>,
-                <&custom_y_scaler 1 10>,
+                <&custom_x_scaler 1 150>,
+                <&custom_y_scaler 1 45>,
                 <&custom_scroll_mapper>;
         };
     };
