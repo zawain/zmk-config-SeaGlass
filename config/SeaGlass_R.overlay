@@ -1,21 +1,41 @@
+/* 1. トラックボール自体の物理感度（CPI）を爆上げしてラグを消す */
+&trackball {
+    /* デフォルト（おそらく600〜1000）から大幅に引き上げます */
+    cpi = <2400>; 
+};
+
 / {
-    /* 1. 【横スクロール（X軸）専用】生データの感度を極端に落とす（ブレ防止） */
+    /* ==============================
+       通常カーソル移動用のスケーラー（Snipe）
+       ============================== */
+    /* 爆速になったカーソルを元の速度に戻す（ブレーキ） */
+    pointer_scaler: pointer_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <0 1>; /* X軸とY軸の両方 */
+    };
+
+    /* ==============================
+       スクロール用のスケーラーとマッパー
+       ============================== */
+    /* 横スクロール（ブレ防止用・かなり重め） */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <0>; /* 0 = X軸の生データ */
+        codes = <0>;
     };
 
-    /* 2. 【縦スクロール（Y軸）専用】生データの感度を心地よい速度に落とす */
+    /* 縦スクロール（心地よい速度用） */
     custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
-        codes = <1>; /* 1 = Y軸の生データ */
+        codes = <1>;
     };
 
-    /* 3. 間引いた生データをスクロール信号に変換するマッパー */
+    /* スクロール信号への変換 */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
@@ -23,19 +43,31 @@
         map = <0 6>, <1 8>;
     };
 
-    /* 4. スクロール動作の設定（レイヤー7） */
-    scroll_listener {
+    /* ==============================
+       レイヤーごとの動作割り当て
+       ============================== */
+    trackball_listener {
         compatible = "zmk,input-listener";
         device = <&trackball>; 
 
+        /* ▼ 普段のレイヤー（カーソル移動） */
+        pointer_layers {
+            /* スクロール以外の普段使いするレイヤーを指定します（例: Layer 0, 1, 2） */
+            layers = <0 1 2 3>; 
+            
+            /* CPIを爆上げした分、ここで1/3などのブレーキをかけて通常速度に戻します */
+            input-processors = <&pointer_scaler 1 3>;
+        };
+
+        /* ▼ スクロールレイヤー（Layer 7） */
         scroll_layer_7 {
             layers = <7>; 
             
-            /* 🔽 小人キーのロジックを完全再現！ */
+            /* ラグが消えているので、分母を大きくしても瞬時に動き出します */
             input-processors = 
-                <&custom_x_scaler 1 150>,  /* 横は 1/150 で斜めノイズを無視 */
-                <&custom_y_scaler 1 45>,   /* 縦は 1/45 で心地よい速度に */
-                <&custom_scroll_mapper>;   /* 最後にスクロールに変換 */
+                <&custom_x_scaler 1 150>,
+                <&custom_y_scaler 1 45>,
+                <&custom_scroll_mapper>;
         };
     };
 };
