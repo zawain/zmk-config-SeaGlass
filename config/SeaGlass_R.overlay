@@ -1,8 +1,5 @@
-/* 🔽 私が書いた複雑なプログラムはすべて消し去り、これだけにします！ */
-&{/soc/spi@40003000/trackball@0} {
+&trackball {
     status = "okay";
-    
-    /* inorichi版の特権、純正スクロール機能です！ */
-    /* 念のため、Layer 5(SHORTCUT) と 7(SCROLL) の両方で発動するように構えます！ */
+    /* inorichi版の純正スクロール機能（Layer 5と7で発動） */
     scroll-layers = <5 7>; 
 };
