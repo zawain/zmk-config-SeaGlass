@@ -1,5 +1,5 @@
 / {
-    /* 横スクロール（ブレ防止用） */
+    /* 横スクロール（誤爆防止） */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -7,7 +7,7 @@
         codes = <0>;
     };
 
-    /* 縦スクロール（自然な速度用） */
+    /* 縦スクロール */
     custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -15,7 +15,6 @@
         codes = <1>;
     };
 
-    /* スクロール信号への変換 */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
@@ -23,21 +22,21 @@
         map = <0 6>, <1 8>;
     };
 
-    /* レイヤー7でのスクロール設定 */
     trackball_listener {
         compatible = "zmk,input-listener";
-        
-        /* ※もしエラーが出る場合は、ここを <&pmw3610> に書き換えてみてください */
         device = <&trackball>; 
 
         scroll_layer_7 {
             layers = <7>; 
             
-            /* SeaGlassは最初からもたつきゼロなので、軽い数字で完璧に動きます！ */
-            /* 縦は 1/2（または 1/1）、横は 1/5 くらいがオススメです */
+            /* 
+               報告頻度が上がったので、ラグなしでブレーキがかかります。
+               縦は 1/10 または 1/15 くらいから試すのがオススメです。
+               横は 1/20 くらいにしておきます。
+            */
             input-processors = 
-                <&custom_x_scaler 1 5>,
-                <&custom_y_scaler 1 2>,
+                <&custom_x_scaler 1 20>,
+                <&custom_y_scaler 1 10>,
                 <&custom_scroll_mapper>;
         };
     };
