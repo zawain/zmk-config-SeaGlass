@@ -1,18 +1,53 @@
+/* 🔽 1. ボールの向き（90度回転）と解像度を修正 */
+&{/soc/spi@40003000} {
+    my_trackball: trackball@0 {
+        /delete-property/ snipe-layers;
+        /delete-property/ scroll-layers;
+        /delete-property/ automouse-layer;
+
+        evt-type = <2>;
+        
+        /* 物理的なXとYの入力を入れ替えることで、90度回転を再現します */
+        x-input-code = <1>;  /* 物理XをOSのY軸に送る */
+        y-input-code = <0>;  /* 物理YをOSのX軸に送る */
+        
+        /* 解像度(CPI)を明示的に高めに設定し、なめらかさの土台を作ります */
+        cpi = <800>; 
+    };
+};
+
 / {
+    /* ===================================
+       2. カーソル用の反転＆速度スケーラー
+       =================================== */
+    pointer_x_scaler: pointer_x_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <0>; /* OSのX軸（左右） */
+    };
+    pointer_y_scaler: pointer_y_scaler {
+        compatible = "zmk,input-processor-scaler";
+        #input-processor-cells = <2>;
+        type = <2>;
+        codes = <1>; /* OSのY軸（上下） */
+    };
+
+    /* ===================================
+       3. スクロール用のスケーラー
+       =================================== */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
         codes = <0>;
     };
-
     custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
         type = <2>;
         codes = <1>;
     };
-
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
@@ -20,21 +55,38 @@
         map = <0 6>, <1 8>;
     };
 
+    /* ===================================
+       4. レイヤーへの割り当て
+       =================================== */
     trackball_listener {
         compatible = "zmk,input-listener";
-        
-        /* いつも通りの呼び出し方でOKです */
-        device = <&trackball>;
+        device = <&my_trackball>;
 
+        /* ▼ 普段のレイヤー（カーソル移動） */
+        pointer_layers {
+            layers = <0 1 2 3 4 5 6>;
+            /* 
+               【あべこべの最終調整】
+               もし「上下」の動きが逆なら： <&pointer_y_scaler -1 1> にする
+               もし「左右」の動きが逆なら： <&pointer_x_scaler -1 1> にする
+            */
+            input-processors = 
+                <&pointer_x_scaler 1 1>,
+                <&pointer_y_scaler 1 1>;
+        };
+
+        /* ▼ スクロールレイヤー（Layer 7） */
         scroll_layer_7 {
             layers = <7>; 
-            
-            /* ▼ 小人キーと完全に同じ最強セッティング！ */
+            /* 
+               【なめらかさの最終調整】
+               45は重すぎるので、10などの小さい数字にして高頻度でなめらかに動かします。
+               もしスクロールの「上下」が逆なら： <&custom_y_scaler -1 10> にします。
+            */
             input-processors = 
-                <&custom_x_scaler 1 150>,
-                <&custom_y_scaler 1 45>,
+                <&custom_x_scaler 1 50>,   /* 横はブレ防止で重め */
+                <&custom_y_scaler 1 10>,   /* 縦をなめらかに！ */
                 <&custom_scroll_mapper>;
         };
     };
 };
-
