@@ -1,4 +1,16 @@
+/* 🔽 1. 新ドライバーが求めている「データ形式」を物理アドレス直撃で書き足す */
+&{/soc/spi@40003000/trackball@0} {
+    evt-type = <2>;       /* INPUT_EV_REL (相対移動) */
+    x-input-code = <0>;   /* INPUT_REL_X (X軸) */
+    y-input-code = <1>;   /* INPUT_REL_Y (Y軸) */
+};
+
 / {
+    /* ===================================
+       2. ここから下は小人キーと同じブレーキ設定
+       =================================== */
+
+    /* 横スクロール（誤爆防止） */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -6,6 +18,7 @@
         codes = <0>;
     };
 
+    /* 縦スクロール（心地よい速度） */
     custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -22,7 +35,9 @@
 
     trackball_listener {
         compatible = "zmk,input-listener";
-        device = <&trackball>; 
+        
+        /* エラーを回避するため、物理アドレスでトラボを指定します */
+        device = <&{/soc/spi@40003000/trackball@0}>;
 
         scroll_layer_7 {
             layers = <7>; 
