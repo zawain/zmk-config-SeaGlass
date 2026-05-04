@@ -1,14 +1,8 @@
-/* 1. トラックボール自体の物理感度（CPI）を爆上げしてラグを消す */
-&trackball {
-    /* デフォルト（おそらく600〜1000）から大幅に引き上げます */
-    cpi = <2400>; 
-};
-
 / {
     /* ==============================
        通常カーソル移動用のスケーラー（Snipe）
        ============================== */
-    /* 爆速になったカーソルを元の速度に戻す（ブレーキ） */
+    /* CPIを2400に爆上げしたため、普段のカーソルが速すぎないようにブレーキをかけます */
     pointer_scaler: pointer_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -19,7 +13,6 @@
     /* ==============================
        スクロール用のスケーラーとマッパー
        ============================== */
-    /* 横スクロール（ブレ防止用・かなり重め） */
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -27,7 +20,6 @@
         codes = <0>;
     };
 
-    /* 縦スクロール（心地よい速度用） */
     custom_y_scaler: custom_y_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -35,7 +27,6 @@
         codes = <1>;
     };
 
-    /* スクロール信号への変換 */
     custom_scroll_mapper: custom_scroll_mapper {
         compatible = "zmk,input-processor-code-mapper";
         #input-processor-cells = <0>;
@@ -52,21 +43,20 @@
 
         /* ▼ 普段のレイヤー（カーソル移動） */
         pointer_layers {
-            /* スクロール以外の普段使いするレイヤーを指定します（例: Layer 0, 1, 2） */
             layers = <0 1 2 3>; 
             
-            /* CPIを爆上げした分、ここで1/3などのブレーキをかけて通常速度に戻します */
-            input-processors = <&pointer_scaler 1 3>;
+            /* 通常カーソル用ブレーキ（1/3〜1/5あたりで好みの速度に調整） */
+            input-processors = <&pointer_scaler 1 4>;
         };
 
         /* ▼ スクロールレイヤー（Layer 7） */
         scroll_layer_7 {
             layers = <7>; 
             
-            /* ラグが消えているので、分母を大きくしても瞬時に動き出します */
+            /* ラグは消えているので、分母を大きくして心地よい速度を作れます */
             input-processors = 
-                <&custom_x_scaler 1 150>,
-                <&custom_y_scaler 1 45>,
+                <&custom_x_scaler 1 150>,  /* 横はブレ防止で激重に */
+                <&custom_y_scaler 1 45>,   /* 縦は小人キーと同じ黄金比に */
                 <&custom_scroll_mapper>;
         };
     };
