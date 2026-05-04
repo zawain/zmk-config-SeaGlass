@@ -1,5 +1,7 @@
-&trackball {
-    status = "okay";
-    /* inorichi版の純正スクロール機能（Layer 5と7で発動） */
-    scroll-layers = <5 7>; 
+/* 親玉（spi0）の中にある、子供（trackball@0）に直接指示を出します */
+&spi0 {
+    trackball@0 {
+        status = "okay";
+        scroll-layers = <5 7>; 
+    };
 };
