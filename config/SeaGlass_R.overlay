@@ -1,23 +1,4 @@
-/* 🔽 1. トラボを直接指定し、古い遺物を消してから新しいデータ形式を書き込む */
-&{/soc/spi@40003000} {
-    my_trackball: trackball@0 {
-        /* ▼ 古いドライバー（inorichi版）の遺物を強制削除！ */
-        /delete-property/ snipe-layers;
-        /delete-property/ scroll-layers;
-        /delete-property/ automouse-layer;
-
-        /* ▼ 新しい本家ドライバー（badjeff版）用のデータ形式 */
-        evt-type = <2>;       /* INPUT_EV_REL (相対移動) */
-        x-input-code = <0>;   /* INPUT_REL_X (X軸) */
-        y-input-code = <1>;   /* INPUT_REL_Y (Y軸) */
-    };
-};
-
 / {
-    /* ===================================
-       2. ここから下は小人キーと同じブレーキ設定
-       =================================== */
-
     custom_x_scaler: custom_x_scaler {
         compatible = "zmk,input-processor-scaler";
         #input-processor-cells = <2>;
@@ -42,8 +23,8 @@
     trackball_listener {
         compatible = "zmk,input-listener";
         
-        /* 🔽 先ほど名札をつけた「my_trackball」を確実によびだす */
-        device = <&my_trackball>;
+        /* いつも通りの呼び出し方でOKです */
+        device = <&trackball>;
 
         scroll_layer_7 {
             layers = <7>; 
