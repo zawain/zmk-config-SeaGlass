@@ -45,7 +45,7 @@
             input-processors = 
                 <&custom_scroll_mapper>, 
                 <&scroll_v_scaler (-1) 40>,  /* ◀︎ 縦の感度（例: 1/4倍） */
-                <&scroll_h_scaler (-1) 80>; /* ◀︎ 横の感度（例: 誤爆防止で1/10倍と鈍めに設定） */
+                <&scroll_h_scaler 1 80>; /* ◀︎ 横の感度（例: 誤爆防止で1/10倍と鈍めに設定） */
         };
     };
 };
